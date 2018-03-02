@@ -2,11 +2,13 @@
 
 
 //change these numbers to edit dataset, separate by commas
-var dataSet = [2,4,6,5,3,5,6,7,6,3,2,3,3,5,4,6];
-
+var dataSet = [10,10,23,35,35,35,35,34,35,23,24,25,35,9,2,5,4,1,8,9,2,7,14,3,12,1,7,3,0,1,5,11,2,1,11,1,13,9,12,14,5,18,18,18,19,19,8,3,14,12,3,7,9,0,13,6,2,12,1,1,10,6,12,6,9];
+var graphMode = "histograph"; //"allPoints" or "histograph" (include ")
 
 
 var arrSize;
+var devGroups = [];
+var devCount = [];
 var count = 0;
 
 var sumSqr = 0;
@@ -105,6 +107,7 @@ function setup()
 	stdDev=sqrt(sumSqr/arrSize);
 	
 	median();
+	var minimumVal = dataSet[0];
 	
 	console.log("Sum of Values: ",dataSum);
 	console.log("Avg: ",avg);
@@ -144,34 +147,89 @@ function setup()
 	maxNum = arrNums[arrNums.length-1];
 	
 	maxFreqs = max(arrFreqs);
+	
+	
+	dataRange = dataSet[arrSize-1] - dataSet[0];
+	for(var i = 0; i<(dataRange/stdDev); i++)
+	{
+		devGroups[i] = stdDev * i + stdDev + minimumVal;
+	}
+	console.log("minimumVal:",minimumVal);
+	
+	console.log("devGroups :", devGroups);
+	
+	for (var i = 0; i<devGroups.length; i++)
+	{
+		devCount[i] = 0;
+	}
+	
+	for(var i = 0; i<arrSize; i++)
+	{
+		for (var j = 0; j<devGroups.length; j++)
+		if (dataSet[i] < devGroups[j] && dataSet[i] >= devGroups[j] - stdDev)
+		{
+			devCount[j] += 1;
+		}
+	}
+	
+	
+	
 }
 
 function draw() 
 {
 	var graphBoxW = 500;
-	var graphBoxH = 350;
-	var colConst = 200/arrNums.length;
-	var histWidth = graphBoxW/arrNums.length;
-	var oneSize = (graphBoxH-20) / maxFreqs;
+	var graphBoxH = 350;	
 	
-	noStroke();
-	fill(255);
-	rect(20,20,graphBoxW,graphBoxH);
-	
-	rectMode(CORNER);
-	textAlign(LEFT);
-	fill(200);
-
-	for (var i = 0; i<arrNums.length; ++i)
+	if (graphMode == "allPoints")
 	{
-		stroke(i*colConst+55,0,0);
-		fill(i*colConst+55,0,0);
-		rect(20+histWidth*i,height-20,histWidth,-oneSize*arrFreqs[i]);
+
+		var colConst = 200/arrNums.length;
+		var histWidth = graphBoxW/arrNums.length;
+		var oneSize = (graphBoxH-20) / maxFreqs;
+		
+		noStroke();
 		fill(255);
-		var temp2 = arrNums[i]+' ';
-		text(temp2, 12+histWidth*i+histWidth/2,height-20)
-	}
+		rect(20,20,graphBoxW,graphBoxH);
+		
+		rectMode(CORNER);
+		textAlign(LEFT);
+		fill(200);
+
+		for (var i = 0; i<arrNums.length; ++i)
+		{
+			stroke(i*colConst+55,0,0);
+			fill(i*colConst+55,0,0);
+			rect(20+histWidth*i,height-20,histWidth,-oneSize*arrFreqs[i]);
+			fill(255);
+			var temp2 = round(100*arrNums[i])/100+' ';
+			text(temp2, 12+histWidth*i+histWidth/2,height-20)
+		}
+	}else if (graphMode == "histograph"){
+		maxFreqs = max(devCount);
 	
+		var colConst = 200/devGroups.length;
+		var histWidth = graphBoxW/devGroups.length;
+		var oneSize = (graphBoxH-20) / maxFreqs;
+		
+		noStroke();
+		fill(255);
+		rect(20,20,graphBoxW,graphBoxH);
+		
+		rectMode(CORNER);
+		textAlign(LEFT);
+		fill(200);
+
+		for (var i = 0; i<devGroups.length; ++i)
+		{
+			stroke(i*colConst+55,0,0);
+			fill(i*colConst+55,0,0);
+			rect(20+histWidth*i,height-20,histWidth,-oneSize*devCount[i]);
+			fill(255);
+			var temp2 = round(100*devGroups[i]-stdDev)/100 + '-' + round(100*devGroups[i])/100;
+			text(temp2, -10+histWidth*i+histWidth/2,height-20)
+		}
+	}
 	noStroke();
 	fill(255);
 	rect(535,300,245,70);
@@ -180,7 +238,6 @@ function draw()
 	// 100% should be max value, highest in dataset
 	
 	var newConst = 245/(dataSet[arrSize-1]+1);
-	console.log(newConst);
 	var Q3rd = (Q3*newConst)+535;
 	var Q1st = (Q1*newConst)+535;
 	

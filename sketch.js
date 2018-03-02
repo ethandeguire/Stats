@@ -3,7 +3,7 @@
 
 //change these numbers to edit dataset, separate by commas
 var dataSet = [10,10,23,35,35,35,35,34,35,23,24,25,35,9,2,5,4,1,8,9,2,7,14,3,12,1,7,3,0,1,5,11,2,1,11,1,13,9,12,14,5,18,18,18,19,19,8,3,14,12,3,7,9,0,13,6,2,12,1,1,10,6,12,6,9];
-var graphMode = "histograph"; //"allPoints" or "histograph" (include ")
+var graphMode = "histogram"; //"allPoints" or "histogram" (include ")
 
 
 var arrSize;
@@ -205,7 +205,7 @@ function draw()
 			var temp2 = round(100*arrNums[i])/100+' ';
 			text(temp2, 12+histWidth*i+histWidth/2,height-20)
 		}
-	}else if (graphMode == "histograph"){
+	}else if (graphMode == "histogram"){
 		maxFreqs = max(devCount);
 	
 		var colConst = 200/devGroups.length;
@@ -226,7 +226,7 @@ function draw()
 			fill(i*colConst+55,0,0);
 			rect(20+histWidth*i,height-20,histWidth,-oneSize*devCount[i]);
 			fill(255);
-			var temp2 = round(100*devGroups[i]-stdDev)/100 + '-' + round(100*devGroups[i])/100;
+			var temp2 = round(100*(round((100*devGroups[i])/100)-(round(stdDev*100)/100)))/100 + '-' + round(100*devGroups[i])/100;
 			text(temp2, -10+histWidth*i+histWidth/2,height-20)
 		}
 	}

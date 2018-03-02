@@ -1,12 +1,21 @@
 //github.com/ethandeguire/Stats
 //change these numbers to edit dataset, separate by commas
-var dataSet = [2,4,6,8,10,12];
-var graphMode = "allPoints"; //"allPoints" or "histogram" (include ")
-var deviationRoundingFactor = 1000; //value to round by - higher number == more precise. use powers of 10
+
+
+var dataSet = [2,2,2,5,6,6,6,6,7,8,9,10];
+// "0" = all points historammed ----- "1" = standard deviation histogram ----- "2" = custom size histogram
+var graphMode = 1;
+var roundFactor = 10; //value to round  by - higher number == more precise. use powers of 10
+var customHistoWidth = 2; //value for horizontal ranges in histogram, only valid if graphMode = "custom"
+var maxNums = 10; //max numbers allowed on histograph
+
 
 var arrSize;
 var devGroups = [];
 var devCount = [];
+
+var custGroups = [];
+var custCount = [];
 
 var sumSqr = 0;
 var dataSum = 0;
@@ -118,27 +127,35 @@ function setup()
 	maxNum = arrNums[arrNums.length-1];
 	
 
-	
+	//for std dev horizontal
 	dataRange = dataSet[arrSize-1] - dataSet[0];
-	for(var i = 0; i<(dataRange/stdDev); i++)
-	{
-		devGroups[i] = round ( deviationRoundingFactor * (stdDev * i + stdDev + minimumVal))/deviationRoundingFactor;
-	}
-		
-	for (var i = 0; i<devGroups.length; i++)
-	{
+	for(var i = 0; i<(dataRange/stdDev); i++){
+		devGroups[i] = round ( roundFactor * (stdDev * i + stdDev + minimumVal))/roundFactor;
 		devCount[i] = 0;
 	}
 	
-	for(var i = 0; i<arrSize; i++)
-	{
-		for (var j = 0; j<devGroups.length; j++)
-		if (dataSet[i] < devGroups[j] && dataSet[i] >= devGroups[j] - round(deviationRoundingFactor*stdDev)/deviationRoundingFactor)
-		{
-			devCount[j] += 1;
+	for(var i = 0; i<arrSize; i++){
+		for (var j = 0; j<devGroups.length; j++){
+			if (dataSet[i] < devGroups[j] && dataSet[i] >= devGroups[j] - round(roundFactor*stdDev)/roundFactor){
+				devCount[j] += 1;
+			}
 		}
 	}
 	
+	//for custom horizontal
+	for(var i = 0; i<(dataRange/customHistoWidth); i++){
+		custGroups[i] = round(roundFactor * (customHistoWidth * i + customHistoWidth + minimumVal))/roundFactor;     //round ( roundFactor * (stdDev * i + stdDev + minimumVal))/roundFactor;
+		custCount[i] = 0;
+	}
+	
+	for(var i = 0; i<arrSize; i++){
+		for (var j = 0; j<custGroups.length; j++){
+			if (dataSet[i] < custGroups[j] && dataSet[i] >= custGroups[j] - round(roundFactor*customHistoWidth)/roundFactor){
+				custCount[j] += 1;
+			}
+		}
+	}
+		
 	
 	
 	console.log("Sum of Values: ",dataSum);
@@ -152,6 +169,9 @@ function setup()
 	console.log("Frequencies", arrFreqs);
 	console.log("Deviation Groups", devGroups);
 	console.log("Deviation Group Counts", devCount);
+	console.log("Custom Groups", custGroups);
+	console.log("Custom Group Counts", custCount);
+	
 	
 	var text1 = "Sum of Values:	   " + dataSum;
 	var text2 = "Average:              " + avg;
@@ -160,17 +180,21 @@ function setup()
 	var text5 = "Median:         	   "+ Median;
 	var text6 = "3rd Quartile:  	   " + Q3;
 	var text7 = "# of Values    	    " + arrSize;
+	var text8 = "Minimum    	    " + minimumVal;
+	var text9 = "Maximum    	    " + maximumVal;
 	
 	fill(255);
 	stroke(120);
 	textSize(15);
 	text(text1,530,40);
-	text(text2,530,80);
-	text(text3,530,120);
-	text(text4,530,160);
-	text(text5,530,200);
-	text(text6,530,240);
-	text(text7,530,280);	
+	text(text2,530,70);
+	text(text3,530,100);
+	text(text4,530,130);
+	text(text5,530,160);
+	text(text6,530,190);
+	text(text7,530,220);	
+	text(text8,530,250);	
+	text(text9,530,280);	
 }
 
 function draw() 
@@ -180,13 +204,16 @@ function draw()
 	
 	noStroke();
 	fill(255);
-	rect(20,20,graphBoxW,graphBoxH);
+	rect(20,20,graphBoxW,graphBoxH+11);
 	
 	rectMode(CORNER);
 	textAlign(LEFT);
 
+	//changes max numbers to write on histograph
+	if ((graphMode == 0 && dataSet.length > maxNums) || (graphMode == 1 && devGroups.length > maxNums) ||(graphMode == 2 && custGroups.length > maxNums)){}else {var doNumbers = true};
+	
 	//draw histogram boxes in different colors according to their size.
-	if (graphMode == "allPoints")
+	if (graphMode == 0)
 	{
 		var colConst = 200/arrNums.length;
 		var histWidth = graphBoxW/arrNums.length;
@@ -198,10 +225,9 @@ function draw()
 			fill(i*colConst+55,0,0);
 			rect(20+histWidth*i,height-20,histWidth,-oneSize*arrFreqs[i]);
 			fill(255);
-			var temp2 = round(100*arrNums[i])/100+' ';
-			text(temp2, 12+histWidth*i+histWidth/2,height-20)
+			if (doNumbers == true){var temp2 = round(100*arrNums[i])/100+' ';text(temp2, 12+histWidth*i+histWidth/2,height-20)}
 		}
-	}else if (graphMode == "histogram"){
+	}else if (graphMode == 1){
 		var colConst = 200/devGroups.length;
 		var histWidth = graphBoxW/devGroups.length;
 		var oneSize = (graphBoxH-20) / max(devCount);
@@ -212,9 +238,21 @@ function draw()
 			fill(i*colConst+55,0,0);
 			rect(20+histWidth*i,height-20,histWidth,-oneSize*devCount[i]);
 			fill(255);
-			if (i != 0){var temp3 = round(100*(devGroups[i-1]))/100 + '-' + round(100*(devGroups[i]))/100;}
-			else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*devGroups[i])/100;}
-			text(temp3, -10+histWidth*i+histWidth/2,height-20)
+			if (doNumbers == true){if (i != 0){var temp3 = round(100*(devGroups[i-1]))/100 + '-' + round(100*(devGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*devGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-20)}
+		}
+	
+	}else if (graphMode == 2){
+		var colConst = 200/custGroups.length;
+		var histWidth = graphBoxW/custGroups.length;
+		var oneSize = (graphBoxH-20) / max(custCount);
+		
+		for (var i = 0; i<custGroups.length; ++i)
+		{
+			stroke(i*colConst+55,0,0);
+			fill(i*colConst+55,0,0);
+			rect(20+histWidth*i,height-20,histWidth,-oneSize*custCount[i]);
+			fill(255);
+			if (doNumbers == true){if (i != 0){var temp3 = round(100*(custGroups[i-1]))/100 + '-' + round(100*(custGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*custGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-20)}
 		}
 	}
 	

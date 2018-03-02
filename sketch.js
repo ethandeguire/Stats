@@ -166,22 +166,22 @@ function setup()
 	console.log("Quartile 3: ",Q3);
 	console.log("Values ",arrSize);
 	console.log("Data Set:", dataSet);
-	console.log("Frequencies", arrFreqs);
-	console.log("Deviation Groups", devGroups);
-	console.log("Deviation Group Counts", devCount);
-	console.log("Custom Groups", custGroups);
-	console.log("Custom Group Counts", custCount);
+	//console.log("Frequencies", arrFreqs);
+	//console.log("Deviation Groups", devGroups);
+	//console.log("Deviation Group Counts", devCount);
+	//console.log("Custom Groups", custGroups);
+	//console.log("Custom Group Counts", custCount);
 	
 	
-	var text1 = "Sum of Values:	   " + dataSum;
-	var text2 = "Average:              " + avg;
-	var text3 = "Std Deviation:  	  " + stdDev;
-	var text4 = "1st Quartile:  	    " + Q1;
-	var text5 = "Median:         	   "+ Median;
-	var text6 = "3rd Quartile:  	   " + Q3;
-	var text7 = "# of Values    	    " + arrSize;
-	var text8 = "Minimum    	    " + minimumVal;
-	var text9 = "Maximum    	    " + maximumVal;
+	var text1 = "Sum of Values:	     " + dataSum;
+	var text2 = "Average:                 " + avg;
+	var text3 = "Std Deviation:  	     " + round(10000*stdDev)/10000;
+	var text4 = "1st Quartile:  	       " + Q1;
+	var text5 = "Median:         	        "+ Median;
+	var text6 = "3rd Quartile:  	       " + Q3;
+	var text7 = "# of Values    	       " + arrSize;
+	var text8 = "Minimum    	           " + minimumVal;
+	var text9 = "Maximum    	         " + maximumVal;
 	
 	fill(255);
 	stroke(120);

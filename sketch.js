@@ -1,4 +1,6 @@
 //github.com/ethandeguire/Stats
+var graphMode =  "Standard Deviation Mode"; // "Custom Mode" "All Points Mode" "Standard Deviation Mode"
+var includeOutliers = false; //false or true
 
 var dataSetSize; //used to be arrSize
 
@@ -27,6 +29,41 @@ var minimumVal;
 var maximumVal;
 var result;
 var outLiers = 0;
+
+var selGraphMode;
+
+function createSliders()
+{
+	
+	selGraphMode = createSelect();
+	selGraphMode.position(20,410);
+	selGraphMode.option("Standard Deviation Mode");
+	selGraphMode.option("All Points Mode");
+	//selGraphMode.option("Custom Mode");
+	selGraphMode.changed(selGraphModeFunc);
+	
+	
+	toggleOutliers = createButton("Toggle Outliers");
+	toggleOutliers.position(20,450);
+	toggleOutliers.mousePressed(outlierToggleFunc);
+
+}
+
+function selGraphModeFunc(){graphMode = selGraphMode.value();}
+function outlierToggleFunc(){if (includeOutliers == true){includeOutliers = false}else if(includeOutliers == false){includeOutliers = true}}
+
+
+
+function deleteStuff()
+{
+	console.log(CustomHistoInput.value());
+	customHistoWidth = int(CustomHistoInput.value());	
+	CustomHistoInput.remove();
+	submitButton.remove();
+}
+
+
+
 
 function freq() 
 {
@@ -93,74 +130,8 @@ function median()
 
 function setup() 
 {
-	
 	createCanvas(800,400);
-	background(120);
-	stroke(1);
-	strokeWeight(1);
-	dataSetSize = dataSet.length;
-	sortArr();
-	
-	doMath();
-	if (includeOutliers == false)
-	{
-		var tempArray = [];
-		var outRangeTop = Q3+(1.5*(Q3-Q1));
-		var outRangeBottom = Q1-(1.5*(Q3-Q1));
-		for(var i = 0; i<(dataSetSize); i++){
-			if (dataSet[i] > outRangeTop || dataSet[i] < outRangeBottom){
-				outLiers += 1;
-			}else{
-				splice(tempArray, dataSet[i], i);
-			}
-		}
-		
-		dataSet = tempArray;
-		dataSetSize = dataSet.length;	
-		doMath();
-	}
-		
-	console.log("Sum of Values: ",dataSum);
-	console.log("Avg: ",avg);
-	console.log("Standard Deviation: ",stdDev);
-	console.log("Quartile 1: ",Q1);
-	console.log("Median: ",Median);
-	console.log("Quartile 3: ",Q3);
-	console.log("Values ",dataSetSize);
-	console.log("Data Set:", dataSet);
-	console.log("Data Set Freqs:", dataSetFreqs);
-	console.log("Data Set Nums:", dataSetNums);
-	console.log("stdDevGroups:", stdDevGroups);
-	console.log("stdDevCount:", stdDevCount);
-	console.log("customSizeGroups:", customSizeGroups);
-	console.log("customSizeCount:", customSizeCount);
-	console.log("outliers: ",outLiers);	
-	
-	var textNum = [10]; // whitespace is very important below
-	textNum[0] = "Sum of Values: 	     " + dataSum;
-	textNum[1] = "Average:                   " + round(10000*avg)/10000;
-	textNum[2] = "Std Deviation:   	     " + round(10000*stdDev)/10000;
-	textNum[3] = "1st Quartile:   	        " + Q1;
-	textNum[4] = "Median:                     "+ Median;
-	textNum[5] = "3rd Quartile:  	         " + Q3;
-	textNum[6] = "# of Values    	         " + dataSetSize;
-	textNum[7] = "Minimum    	            " + minimumVal;
-	textNum[8] = "Maximum    	           " + maximumVal;
-	textNum[9] = "Outliers Excluded    " + outLiers;
-	
-	fill(255);
-	stroke(120);
-	
-	
-	//decrease this if more vars are added to textNum
-	var textY = 27;
-	textSize(15);
-	for (var i = 0; i<textNum.length; i++){text(textNum[i], 530, 40 + textY * i);}	
-
-	text(round(1000*minimumVal)/1000,16,395);
-	text(round(1000*maximumVal)/1000,514,395);
-
-	
+	createSliders();
 }
 
 function doMath()
@@ -223,12 +194,82 @@ function doMath()
 
 function draw() 
 {
+	background(120);
+	
+	
+	outLiers = 0;
+	
+	dataSet = OGdataSet;
+	dataSetSize = dataSet.length;
+	sortArr();
+	
+	doMath();
+	if (includeOutliers == false)
+	{
+		var tempArray = [];
+		var outRangeTop = Q3+(1.5*(Q3-Q1));
+		var outRangeBottom = Q1-(1.5*(Q3-Q1));
+		for(var i = 0; i<(dataSetSize); i++){
+			if (dataSet[i] > outRangeTop || dataSet[i] < outRangeBottom){
+				outLiers += 1;
+			}else{
+				splice(tempArray, dataSet[i], i);
+			}
+		}
+		
+		dataSet = tempArray;
+		dataSetSize = dataSet.length;	
+		doMath();
+	}
+
+	/*
+	console.log("Sum of Values: ",dataSum);
+	console.log("Avg: ",avg);
+	console.log("Standard Deviation: ",stdDev);
+	console.log("Quartile 1: ",Q1);
+	console.log("Median: ",Median);
+	console.log("Quartile 3: ",Q3);
+	console.log("Values ",dataSetSize);
+	console.log("Data Set:", dataSet);
+	console.log("Data Set Freqs:", dataSetFreqs);
+	console.log("Data Set Nums:", dataSetNums);
+	console.log("stdDevGroups:", stdDevGroups);
+	console.log("stdDevCount:", stdDevCount);
+	console.log("customSizeGroups:", customSizeGroups);
+	console.log("customSizeCount:", customSizeCount);
+	console.log("outliers: ",outLiers);	
+	*/
+	
+	var textNum = [10]; // whitespace is very important below
+	textNum[0] = "Sum of Values: 	     " + dataSum;
+	textNum[1] = "Average:                   " + round(10000*avg)/10000;
+	textNum[2] = "Std Deviation:   	     " + round(10000*stdDev)/10000;
+	textNum[3] = "1st Quartile:   	        " + Q1;
+	textNum[4] = "Median:                     "+ Median;
+	textNum[5] = "3rd Quartile:  	         " + Q3;
+	textNum[6] = "# of Values    	         " + dataSetSize;
+	textNum[7] = "Minimum    	            " + minimumVal;
+	textNum[8] = "Maximum    	           " + maximumVal;
+	textNum[9] = "Outliers Excluded    " + outLiers;
+	
+	fill(255);
+	stroke(120);
+	
+	
+	//decrease this if more vars are added to textNum
+	var textY = 27;
+	textSize(15);
+	for (var i = 0; i<textNum.length; i++){text(textNum[i], 530, 40 + textY * i);}	
+
+	text(round(1000*minimumVal)/1000,16,365);
+	text(round(1000*maximumVal)/1000,514,365);	
+	
 	var graphBoxW = 500;
 	var graphBoxH = 350;
 	
 	noStroke();
 	fill(255);
-	rect(20,20,graphBoxW,graphBoxH+11);
+	rect(20,20,graphBoxW+20,graphBoxH);
 	
 	rectMode(CORNER);
 	textAlign(LEFT);
@@ -237,7 +278,7 @@ function draw()
 	if ((graphMode == 0 && dataSetFreqs.length > maxNums) || (graphMode == 1 && stdDevGroups.length > maxNums) ||(graphMode == 2 && customSizeGroups.length > maxNums)){}else {var doNumbers = true};
 	
 	//draw histogram boxes in different colors according to their size.
-	if (graphMode == 0)
+	if (graphMode == "All Points Mode")
 	{
 		var colConst = 200/dataSetNums.length;
 		var histWidth = graphBoxW/dataSetNums.length;
@@ -247,11 +288,11 @@ function draw()
 		{
 			stroke(i*colConst+55,0,0);
 			fill(i*colConst+55,0,0);
-			rect(20+histWidth*i,height-20,histWidth,-oneSize*dataSetFreqs[i]);
+			rect(20+histWidth*i,height-51,histWidth,-oneSize*dataSetFreqs[i]);
 			fill(255);
-			if (doNumbers == true){var temp2 = round(100*dataSetNums[i])/100+' ';text(temp2, 12+histWidth*i+histWidth/2,height-20)}
+			if (doNumbers == true){var temp2 = round(100*dataSetNums[i])/100+' ';text(temp2, 12+histWidth*i+histWidth/2,height-51)}
 		}
-	}else if (graphMode == 1){
+	}else if (graphMode == "Standard Deviation Mode"){
 		var colConst = 200/stdDevGroups.length;
 		var histWidth = graphBoxW/stdDevGroups.length;
 		var oneSize = (graphBoxH-20) / max(stdDevCount);
@@ -260,12 +301,12 @@ function draw()
 		{
 			stroke(i*colConst+55,0,0);
 			fill(i*colConst+55,0,0);
-			rect(20+histWidth*i,height-20,histWidth,-oneSize*stdDevCount[i]);
+			rect(20+histWidth*i,height-51,histWidth,-oneSize*stdDevCount[i]);
 			fill(255);
-			if (doNumbers == true){if (i != 0){var temp3 = round(100*(stdDevGroups[i-1]))/100 + '-' + round(100*(stdDevGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*stdDevGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-20)}
+			if (doNumbers == true){if (i != 0){var temp3 = round(100*(stdDevGroups[i-1]))/100 + '-' + round(100*(stdDevGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*stdDevGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-51)}
 		}
 	
-	}else if (graphMode == 2){
+	}/*else if (graphMode == "Custom Mode"){
 		var colConst = 200/customSizeGroups.length;
 		var histWidth = graphBoxW/customSizeGroups.length;
 		var oneSize = (graphBoxH-20) / max(customSizeCount);
@@ -276,9 +317,9 @@ function draw()
 			fill(i*colConst+55,0,0);
 			rect(20+histWidth*i,height-20,histWidth,-oneSize*customSizeCount[i]);
 			fill(255);
-			if (doNumbers == true){if (i != 0){var temp3 = round(100*(customSizeGroups[i-1]))/100 + '-' + round(100*(customSizeGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*customSizeGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-20)}
+			//if (doNumbers == true){if (i != 0){var temp3 = round(100*(customSizeGroups[i-1]))/100 + '-' + round(100*(customSizeGroups[i]))/100;}else{var temp3 = round(100*minimumVal)/100 + '-' + round(100*customSizeGroups[i])/100;}text(temp3, -10+histWidth*i+histWidth/2,height-20)}
 		}
-	}
+	}*/
 	
 	
 	noStroke();
